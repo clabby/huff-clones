@@ -1,4 +1,4 @@
-#include "./Clone.huff";
+#include "./Clone.huff"
 
 #define macro PARAM_1() = takes (0) returns (0) {
     0x00 GET_ARG_ADDRESS()  // [arg_addr]
@@ -13,13 +13,13 @@
 }
 
 #define macro PARAM_3() = takes (0) returns (0) {
-    0x20 GET_ARG_UINT_64()  // [arg_uint]
+    0x34 GET_ARG_UINT_64()  // [arg_uint]
     0x00 mstore             // []
     0x20 0x00 return
 }
 
 #define macro PARAM_4() = takes (0) returns (0) {
-    0x20 GET_ARG_UINT_8()   // [arg_uint]
+    0x3C GET_ARG_UINT_8()   // [arg_uint]
     0x00 mstore             // []
     0x20 0x00 return
 }

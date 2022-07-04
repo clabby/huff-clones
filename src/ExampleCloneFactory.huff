@@ -1,24 +1,39 @@
+#include "./Clones.huff"
+
 #define constant IMPL = FREE_STORAGE_POINTER()
 
 #define macro CREATE_CLONE() = takes (0) returns (0) {
-    0x64 calldataload // [uint8]
-    0x44 calldataload // [uint64, uint8]
-    0x24 calldataload // [uint256, uint64, uint8]
-    0x04 calldataload // [address, uint256, uint64, uint8]
+    0x64 calldataload  // [uint8]
+    0x44 calldataload  // [uint64, uint8]
+    0x24 calldataload  // [uint256, uint64, uint8]
+    0x04 calldataload  // [address, uint256, uint64, uint8]
 
-    // TODO: Encode packed calldata*
+    // data len = 61 (0x3D)
+    0x3D 0x1000 mstore // [address, uint256, uint64, uint8]
 
-    [IMPL]            // [impl_ptr, data*]
-    CLONE()           // [impl_addr]
-    0x00 mstore       // []
+    0x60 shl           // [address << 0x60, uint256, uint64, uint8]
+    0x1020 mstore      // [uint256, uint64, uint8]
+
+    0x1034 mstore      // [uint64, uint8]
+
+    0xC0 shl           // [uint64 << 0xC0, uint8]
+    0x1054 mstore      // [uint8]
+
+    0xF8 shl           // [uint8 << 0xF8]
+    0x105C mstore      // []
+
+    0x1000             // [data_ptr]
+    [IMPL] sload       // [impl_addr, data_ptr]
+    CLONE()            // [instance]
+    0x00 mstore        // []
     0x20 0x00 return
 }
 
 #define macro MAIN() = takes (0) returns (0) {
     0x00 calldataload 0xE0 shr
-    dup1 0x684fbe55 eq create_clone jumpi
+    dup1 0x684fbe55 eq clone jumpi
 
-    create_clone:
+    clone:
         CREATE_CLONE()
 }
 

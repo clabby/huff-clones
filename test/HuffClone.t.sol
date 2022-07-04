@@ -2,18 +2,17 @@
 pragma solidity ^0.8.15;
 
 import {Test} from "forge-std/Test.sol";
-
-import {ExampleClone} from "./sol-impl/ExampleClone.sol";
-import {ExampleCloneFactory} from "./sol-impl/ExampleCloneFactory.sol";
+import {HuffDeployer} from "foundry-huff/HuffDeployer.sol";
+import {IExampleClone, IExampleCloneFactory} from "./Interfaces.sol";
 
 contract ExampleCloneTest is Test {
-    ExampleClone internal clone;
-    ExampleCloneFactory internal factory;
+    IExampleClone internal clone;
+    IExampleCloneFactory internal factory;
 
     function setUp() public {
-        ExampleClone implementation = new ExampleClone();
-        factory = new ExampleCloneFactory(implementation);
-        clone = factory.createClone(address(this), type(uint256).max, 8008, 69);
+        IExampleClone impl = IExampleClone(HuffDeployer.deploy("ExampleClone"));
+        factory = IExampleCloneFactory(HuffDeployer.deploy_with_args("ExampleCloneFactory", abi.encode(address(impl))));
+        clone = IExampleClone(factory.createClone(address(this), type(uint256).max, 8008, 69));
     }
 
     /// -----------------------------------------------------------------------
