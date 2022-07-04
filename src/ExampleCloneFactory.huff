@@ -1,0 +1,29 @@
+#define constant IMPL = FREE_STORAGE_POINTER()
+
+#define macro CREATE_CLONE() = takes (0) returns (0) {
+    0x64 calldataload // [uint8]
+    0x44 calldataload // [uint64, uint8]
+    0x24 calldataload // [uint256, uint64, uint8]
+    0x04 calldataload // [address, uint256, uint64, uint8]
+
+    // TODO: Encode packed calldata*
+
+    [IMPL]            // [impl_ptr, data*]
+    CLONE()           // [impl_addr]
+    0x00 mstore       // []
+    0x20 0x00 return
+}
+
+#define macro MAIN() = takes (0) returns (0) {
+    0x00 calldataload 0xE0 shr
+    dup1 0x684fbe55 eq create_clone jumpi
+
+    create_clone:
+        CREATE_CLONE()
+}
+
+#define macro CONSTRUCTOR() = takes (0) returns (0) {
+    0x04 calldataload // [impl_addr]
+    [IMPL]            // [impl_ptr, impl_addr]
+    sstore            // []
+}

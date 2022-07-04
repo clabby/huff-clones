@@ -1,0 +1,42 @@
+#include "./Clone.huff";
+
+#define macro PARAM_1() = takes (0) returns (0) {
+    0x00 GET_ARG_ADDRESS()  // [arg_addr]
+    0x00 mstore             // []
+    0x20 0x00 return
+}
+
+#define macro PARAM_2() = takes (0) returns (0) {
+    0x20 GET_ARG_UINT_256() // [arg_uint]
+    0x00 mstore             // []
+    0x20 0x00 return
+}
+
+#define macro PARAM_3() = takes (0) returns (0) {
+    0x20 GET_ARG_UINT_64()  // [arg_uint]
+    0x00 mstore             // []
+    0x20 0x00 return
+}
+
+#define macro PARAM_4() = takes (0) returns (0) {
+    0x20 GET_ARG_UINT_8()   // [arg_uint]
+    0x00 mstore             // []
+    0x20 0x00 return
+}
+
+#define macro MAIN() = takes (0) returns (0) {
+    0x00 calldataload 0xE0 shr
+    dup1 0x02d91518 eq param1 jumpi
+    dup1 0x1f049b68 eq param2 jumpi
+    dup1 0x5ccea9a5 eq param3 jumpi
+    dup1 0xe79876ff eq param4 jumpi
+
+    param1:
+        PARAM_1()
+    param2:
+        PARAM_2()
+    param3:
+        PARAM_3()
+    param4:
+        PARAM_4()
+}
