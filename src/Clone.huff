@@ -38,12 +38,8 @@
         // Check if loop is complete
         dup4          // [arrLen, loop_index, offset, argOffset, arrLen] 
         dup2          // [loop_index, arrLen, loop_index, offset, argOffset, arrLen]
-        gt            // [loop_index > arrLen, loop_index, offset, argOffset, arrLen]
-        dup5          // [arrLen, loop_index > arrLen, loop_index, offset, argOffset, arrLen]
-        dup3          // [loop_index, arrLen, loop_index > arrLen, loop_index, offset, argOffset, arrLen]
-        eq            // [loop_index == arrLen, loop_index > arrLen, loop_index, offset, argOffset, arrLen]
-        or            // [loop_index == arrLen | loop_index > arrLen, loop_index, offset, argOffset, arrLen]
-        finish jumpi  // If the loop index is >= to the array index, the loop is complete.
+        lt            // [loop_index < arrLen, loop_index, offset, argOffset, arrLen]
+        iszero finish jumpi  // If the loop index is >= to the array index, the loop is complete.
 
         0x20          // [0x20, loop_index, offset, argOffset, arrLen]
         mul           // [0x20 * loop_index, offset, argOffset, arrLen]
