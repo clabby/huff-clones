@@ -132,6 +132,7 @@
         0x20 mload   // [creation_size]
         0x60 0x00    // [0x00, 0x60, creation_size]
         create       // [instance]
+        
         // TODO: Revert if instance iszero
 }
 
