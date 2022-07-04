@@ -1,4 +1,4 @@
-#include "./Clone.huff"
+#include "./HuffClone.huff"
 
 #define macro PARAM_1() = takes (0) returns (0) {
     0x00 GET_ARG_ADDRESS()  // [arg_addr]

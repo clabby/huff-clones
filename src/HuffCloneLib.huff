@@ -1,3 +1,8 @@
+/// @notice Creates a clone proxy of the implementation contract, with immutable args
+/// @dev data cannot exceed 65535 bytes, since 2 bytes are used to store the data length
+/// @param impl_addr The address of the implementation contract to clone
+/// @param data_ptr Pointer to beginning of encoded immutable args in memory
+/// @return instance The address of the created clone
 #define macro CLONE() = takes(2) returns (1) {
     // Memory Locations
     // 0x00 - extra_length
@@ -21,8 +26,7 @@
     0x40 mstore  // [impl_addr, data_ptr]
 
     0x6100000000000000000000000000000000000000000000000000000000000000
-    0x60         // [0x60, 0x61..., impl_addr, data_ptr]
-    mstore       // [impl_addr, data_ptr]
+    0x60 mstore  // [impl_addr, data_ptr]
 
     0x20 mload   // [run_size, impl_addr, data_ptr]
     0xF0 shl     // [run_size << 0xF0, impl_addr, data_ptr]
