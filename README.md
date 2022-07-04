@@ -1,4 +1,4 @@
-# clones-with-immutable-args
+# huff-clones ![Tests](https://img.shields.io/github/workflow/status/clabby/clones-with-immutable-args-huff/Tests/master?label=Tests) ![License](https://img.shields.io/github/license/clabby/clones-with-immutable-args-huff?label=License)
 
 > **Note**
 > This project is a work in progress.
