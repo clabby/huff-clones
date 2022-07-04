@@ -17,6 +17,7 @@ contract HuffCloneFactoryTest is Test {
         emit log_named_bytes("Impl Code", bytecodeAt(address(impl)));
         emit log_named_address("Factory", address(factory));
         emit log_named_bytes("Factory Code", bytecodeAt(address(factory)));
+        emit log_named_bytes32("Impl Slot Factory", vm.load(address(factory), bytes32(0x0)));
     }
 
     // https://ethereum.stackexchange.com/questions/66554/is-it-possible-to-get-the-bytecode-of-an-already-deployed-contract-in-solidity

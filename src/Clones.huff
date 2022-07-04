@@ -1,17 +1,23 @@
 #define macro CLONE() = takes(2) returns (1) {
+    // Memory Locations
+    // 0x00 - extra_length
+    // 0x20 - creation_size
+    // 0x40 - run_size
+    // 0x60 - ptr
+
     // Input Stack: [impl_addr, data_ptr]
-    dup2 mload   // [data_len, impl_addr, data_ptr]  
+    dup2 mload   // [data_len, impl_addr, data_ptr]
     0x02 add     // [0x02 + data_len, impl_addr, data_ptr]
     0x00 mstore  // [impl_addr, data_ptr]
 
     0x41         // [0x41, impl_addr, data_ptr]
     0x00 mload   // [extra_length, 0x41, impl_addr, data_ptr]
-    add          // [0x41 + 0x02 + data_len, 0x41, impl_addr, data_ptr]
+    add          // [extra_length + 0x41, impl_addr, data_ptr]
     0x20 mstore  // [impl_addr, data_ptr]
 
     0x0A         // [0x0A, impl_addr, data_ptr]
-    0x20 mload   // [run_size, 0x0A, impl_addr, data_ptr]
-    sub          // [run_size - 0x0A, impl_addr, data_ptr]
+    0x20 mload   // [creation_size, 0x0A, impl_addr, data_ptr]
+    sub          // [creation_size - 0x0A, impl_addr, data_ptr]
     0x40 mstore  // [impl_addr, data_ptr]
 
     0x6100000000000000000000000000000000000000000000000000000000000000
@@ -50,6 +56,11 @@
     // Appended data
     // -------------
 
+    // Memory Locations:
+    // 0x200 - counter
+    // 0x220 - data_ptr
+    // 0x240 - copy_ptr
+
     0x02         // [0x02, impl_addr, data_ptr]
     0x00 mload   // [extra_length, 0x02, impl_addr, data_ptr]
     sub          // [extra_length - 0x02, impl_addr, data_ptr]
@@ -67,7 +78,8 @@
     loop_body:
         0x200 mload  // [counter, impl_addr, data_ptr]
         dup1         // [counter, counter, impl_addr, data_ptr]
-        0x20 lt      // [counter < 0x20, counter, impl_addr, data_ptr]
+        0x20 swap1   // [counter, 0x20, counter, impl_addr, data_ptr]
+        lt           // [counter < 0x20, counter, impl_addr, data_ptr]
         continue jumpi // Exit loop if counter < 0x20
 
         0x220 mload  // [data_ptr, counter, impl_addr, data_ptr]
@@ -116,6 +128,7 @@
         0x20 mload   // [creation_size]
         0x60 0x00    // [0x00, 0x60, creation_size]
         create       // [instance]
+        // TODO: Revert if instance iszero
 }
 
 #define macro CLONE_WRAPPER() = takes (0) returns (0) {
