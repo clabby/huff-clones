@@ -1,9 +1,10 @@
 /// @notice Creates a clone proxy of the implementation contract, with immutable args
 /// @dev data cannot exceed 65535 bytes, since 2 bytes are used to store the data length
+/// @param err The jumpdest to jump to if an error occurs
 /// @param impl_addr The address of the implementation contract to clone
 /// @param data_ptr Pointer to beginning of encoded immutable args in memory
 /// @return instance The address of the created clone
-#define macro CLONE() = takes(2) returns (1) {
+#define macro CLONE(err) = takes(2) returns (1) {
     // Memory Locations
     // 0x00 - extra_length
     // 0x20 - creation_size
@@ -132,22 +133,7 @@
         0x20 mload   // [creation_size]
         0x60 0x00    // [0x00, 0x60, creation_size]
         create       // [instance]
-        
-        // TODO: Revert if instance iszero
-}
 
-#define macro CLONE_WRAPPER() = takes (0) returns (0) {
-    0x24 calldataload // [data]
-    0x04 calldataload // [impl_addr, data]
-    CLONE()           // [address]
-    0x00 mstore       // []
-    0x20 0x00 return
-}
-
-#define macro MAIN() = takes (0) returns (0) {
-    0x00 calldataload 0xE0 shr
-    dup1 0x0fbe133c eq clone jumpi
-
-    clone:
-        CLONE_WRAPPER()
+        dup1 iszero  // [instance == 0, instance]
+        <err> jumpi  // [instance] - Revert if instance is zero
 }
