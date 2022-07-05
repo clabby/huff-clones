@@ -24,7 +24,7 @@
 /// @param argOffset The offset of the arg in the packed data
 /// @param arrLen Number of elements in the array
 /// @return arr The beginning location of the array in memory
-// TODO: Optimize
+// TODO: Finish / Test
 #define macro GET_ARG_UINT_256_ARR() = takes (2) returns (1) {
     // Initial Stack: // [argOffset, arrLen]
     GET_IMMUTABLE_ARGS_OFFSET() // [offset, argOffset, arrLen]
