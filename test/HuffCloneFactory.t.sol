@@ -28,6 +28,23 @@ contract HuffCloneFactoryTest is Test {
         factory.createClone(param1, param2, param3, param4);
     }
 
+    function testGas_arrClone(
+        uint256 a,
+        uint256 b,
+        uint256 c,
+        uint256 d,
+        uint256 e
+    ) public {
+        uint256[] memory arr = new uint256[](5);
+        arr[0] = a;
+        arr[1] = b;
+        arr[2] = c;
+        arr[3] = d;
+        arr[4] = e;
+
+        factory.createArrClone(arr);
+    }
+
     /// -----------------------------------------------------------------------
     /// Correctness tests
     /// -----------------------------------------------------------------------
@@ -48,5 +65,23 @@ contract HuffCloneFactoryTest is Test {
         assertEq(clone.param2(), param2);
         assertEq(clone.param3(), param3);
         assertEq(clone.param4(), param4);
+    }
+
+    function testCorrectness_arrClone(
+        uint256 a,
+        uint256 b,
+        uint256 c,
+        uint256 d,
+        uint256 e
+    ) public {
+        uint256[] memory arr = new uint256[](5);
+        arr[0] = a;
+        arr[1] = b;
+        arr[2] = c;
+        arr[3] = d;
+        arr[4] = e;
+
+        IExampleClone clone = IExampleClone(factory.createArrClone(arr));
+        assertEq(clone.param5(arr.length), arr);
     }
 }

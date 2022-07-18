@@ -6,6 +6,7 @@ interface IExampleClone {
     function param2() external pure returns (uint256);
     function param3() external pure returns (uint64);
     function param4() external pure returns (uint8);
+    function param5(uint256 arrLen) external pure returns (uint256[] memory);
 }
 
 interface IExampleCloneFactory {
@@ -15,4 +16,6 @@ interface IExampleCloneFactory {
         uint64 param3,
         uint8 param4
     ) external returns (address clone);
+
+    function createArrClone(uint256[] memory arr) external returns (address clone);
 }

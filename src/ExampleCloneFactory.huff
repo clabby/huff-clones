@@ -38,12 +38,41 @@
         0x00 0x00 revert
 }
 
+/// @notice Creates an `ExampleClone` contract that has an immutable
+/// uint256 array
+#define macro CREATE_ARRAY_CLONE() = takes (0) returns (0) {
+    0x24 calldataload   // [arr_len]
+    0x20 mul            // [arr_len * 0x20]
+    0x20 add            // [arr_len * 0x20 + 0x20]
+    0x24                // [0x24, arr_len * 0x20 + 0x20]
+    0x300               // [0x300, 0x24, arr_len * 0x20 + 0x20]
+    calldatacopy        // []
+
+    // Set data length in bytes
+    0x300 dup1          // [0x300, 0x300]
+    mload               // [arr_len, 0x300]
+    0x20 mul            // [arr_len * 0x20, 0x300]
+    0x300 mstore        // [0x300 (data_ptr)]
+
+    [IMPL] sload        // [impl_addr, data_ptr]
+
+    CLONE(err)          // [instance]
+    0x00 mstore         // []
+    0x20 0x00 return
+
+    err:
+        0x00 0x00 revert
+}
+
 #define macro MAIN() = takes (0) returns (0) {
     0x00 calldataload 0xE0 shr
     dup1 0x684fbe55 eq clone jumpi
+    dup1 0x2bbb631e eq arr_clone jumpi
 
     clone:
         CREATE_CLONE()
+    arr_clone:
+        CREATE_ARRAY_CLONE()
 }
 
 #define macro CONSTRUCTOR() = takes (0) returns (0) {

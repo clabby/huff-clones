@@ -24,53 +24,44 @@
 /// @param argOffset The offset of the arg in the packed data
 /// @param arrLen Number of elements in the array
 /// @return arr The beginning location of the array in memory
-// TODO: Finish / Test
 #define macro GET_ARG_UINT_256_ARR() = takes (2) returns (1) {
     // Initial Stack: // [argOffset, arrLen]
     GET_IMMUTABLE_ARGS_OFFSET() // [offset, argOffset, arrLen]
 
-    0x00 0x00 mstore  // [offset, argOffset, arrLen]
-    // Write array length to memory at slot 0x20
-    dup3 0x20 mstore  // [offset, argOffset, arrLen]
+    // Push loop index to stack
+    0x00              // [loop_index, offset, argOffset, arrLen]
+
     loop_body:
-        0x00 mload    // [loop_index, offset, argOffset, arrLen] 
-        
-        // Check if loop is complete
-        dup4          // [arrLen, loop_index, offset, argOffset, arrLen] 
-        dup2          // [loop_index, arrLen, loop_index, offset, argOffset, arrLen]
-        lt            // [loop_index < arrLen, loop_index, offset, argOffset, arrLen]
-        iszero finish jumpi  // If the loop index is >= to the array index, the loop is complete.
+        dup4 dup2     // [loop_index, arrLen, loop_index, offset, argOffset, arrLen]
+        lt iszero     // [loop_index >= arrLen, loop_index, offset, argOffset, arrLen]
+        finish jumpi
 
-        0x20          // [0x20, loop_index, offset, argOffset, arrLen]
-        mul           // [0x20 * loop_index, offset, argOffset, arrLen]
+        dup1          // [loop_index, loop_index, offset, argOffset, arrLen]
+        0x20 mul      // [loop_index * 0x20, loop_index, offset, argOffset, arrLen]
 
-        // Load array element from calldata
-        dup2          // [offset, 0x20 * loop_index, offset, argOffset, arrLen]
-        dup4          // [argOffset, offset, 0x20 * loop_index, offset, argOffset, arrLen]
-        add           // [argOffset + offset, 0x20 * loop_index, offset, argOffset, arrLen]
-        add           // [argOffset + offset + 0x20 * loop_index, offset, argOffset, arrLen]
-        calldataload  // [cd, offset, argOffset, arrLen]
+        dup3 dup5     // [argOffset, offset, loop_index * 0x20, loop_index, offset, argOffset, arrLen]
+        add           // [offset + argOffset, loop_index * 0x20, loop_index, offset, argOffset, arrLen]
+        add           // [offset + argOffset + loop_index * 0x20, loop_index, offset, argOffset, arrLen]
+        calldataload  // [element, loop_index, offset, argOffset, arrLen]
 
-        // Store element at next 32 byte offset in memory
-        // ((loop_index + 1) * 0x20) + 0x20
-        // nasty rn
-        0x00 mload    // [loop_index, cd, offset, argOffset, arrLen]
-        dup1          // [loop_index, loop_index, cd, offset, argOffset, arrLen]
-        0x01 add      // [loop_index + 1, loop_index, cd, offset, argOffset, arrLen]
-        0x20 mul      // [(loop_index + 1) * 0x20, loop_index, cd, offset, argOffset, arrLen]
-        0x20 add      // [((loop_index + 1) * 0x20) + 0x20, loop_index, cd, offset, argOffset, arrLen]
-        swap2         // [cd, ((loop_index + 1) * 0x20) + 0x20, loop_index, offset, argOffset, arrLen]
-        swap1         // [((loop_index + 1) * 0x20) + 0x20, cd, loop_index, offset, argOffset, arrLen]
+        dup2          // [loop_index, element, loop_index, offset, argOffset, arrLen]
+        0x20 mul      // [loop_index * 0x20, element, loop_index, offset, argOffset, arrLen]
+        0x40 add      // [loop_index * 0x20 + 0x20, element, loop_index, offset, argOffset, arrLen]
         mstore        // [loop_index, offset, argOffset, arrLen]
 
-        0x01          // [0x01, loop_index, offset, argOffset, arrLen]
-        add           // [0x01 + loop_index, offset, argOffset, arrLen]
-        0x00 mstore   // [offset, argOffset, arrLen]
+        0x01 add      // [loop_index + 1, offset, argOffset, arrLen]
 
-        0x01 loop_body jumpi
+        loop_body jump
     finish:
-        pop pop pop   // [] - Clear the stack
-        0x20          // [0x20] - Beginning location of the array in memory
+        // Set arr size
+        0x20 mstore   // [offset, argOffset, arrLen]
+
+        // Set arr element size (0x20)
+        0x20 0x00 mstore
+
+        // Clean stack & return mem ptr to array
+        pop pop pop   // []
+        0x00          // [0x00] - Beginning offset of the array in memory
 }
 
 /// @notice Reads an immutable arg with type uint64
