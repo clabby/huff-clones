@@ -24,12 +24,23 @@
     0x20 0x00 return
 }
 
+#define macro PARAM_5() = takes (0) returns (0) {
+    0x04 calldataload           // [arr_len]
+    dup1 0x00                   // [0x00, arr_len, arr_len]
+    GET_ARG_UINT_256_ARR()      // [ptr, arr_len]
+    swap1                       // [arr_len, ptr]
+    0x20 mul                    // [arr_len * 0x20, ptr]
+    0x40 add                    // [arr_len * 0x20 + 0x40, ptr]
+    swap1 return
+}
+
 #define macro MAIN() = takes (0) returns (0) {
     0x00 calldataload 0xE0 shr
     dup1 0x02d91518 eq param1 jumpi
     dup1 0x1f049b68 eq param2 jumpi
     dup1 0x5ccea9a5 eq param3 jumpi
     dup1 0xe79876ff eq param4 jumpi
+    dup1 0xf0b032e2 eq param5 jumpi
 
     param1:
         PARAM_1()
@@ -39,4 +50,6 @@
         PARAM_3()
     param4:
         PARAM_4()
+    param5:
+        PARAM_5()
 }
