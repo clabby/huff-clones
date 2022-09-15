@@ -1,3 +1,13 @@
+/// @title HuffClone
+/// @notice Clones with Immutable Args Library
+///         Original implementation:
+///         https://github.com/wighawag/clones-with-immutable-args/blob/master/src/Clone.sol
+/// @author wighawag <https://github.com/wighawag>
+/// @author zefram <https://github.com/boredGenius>
+/// @author hari <https://github.com/hrkrshnn>
+/// @author z0r0z <https://github.com/z0r0z>
+/// @author clabby <https://github.com/clabby>
+
 /// @notice Reads an immutable arg with type address
 /// @param argOffset The offset of the arg in the packed data
 /// @return arg The arg value
@@ -24,44 +34,19 @@
 /// @param argOffset The offset of the arg in the packed data
 /// @param arrLen Number of elements in the array
 /// @return arr The beginning location of the array in memory
-#define macro GET_ARG_UINT_256_ARR() = takes (2) returns (1) {
-    // Initial Stack: // [argOffset, arrLen]
+#define macro GET_ARG_UINT_256_ARR(mem_ptr) = takes (2) returns (1) {
+    // Initial Stack:              [argOffset, arrLen]
     GET_IMMUTABLE_ARGS_OFFSET() // [offset, argOffset, arrLen]
+    add                         // [offset + argOffset, arrLen]
+    
+    dup2 <mem_ptr>              // [mem_ptr, arrLen, offset + argOffset, arrLen]
+    mstore                      // [offset + argOffset, arrLen]
+    swap1 0x05 shl swap1        // [offset + argOffset, arrLen * 0x20]
+    <mem_ptr> 0x20 add          // [mem_ptr + 0x20, offset + argOffset, arrLen * 0x20]
+    calldatacopy                // []
 
-    // Push loop index to stack
-    0x00              // [loop_index, offset, argOffset, arrLen]
-
-    loop_body:
-        dup4 dup2     // [loop_index, arrLen, loop_index, offset, argOffset, arrLen]
-        lt iszero     // [loop_index >= arrLen, loop_index, offset, argOffset, arrLen]
-        finish jumpi
-
-        dup1          // [loop_index, loop_index, offset, argOffset, arrLen]
-        0x20 mul      // [loop_index * 0x20, loop_index, offset, argOffset, arrLen]
-
-        dup3 dup5     // [argOffset, offset, loop_index * 0x20, loop_index, offset, argOffset, arrLen]
-        add           // [offset + argOffset, loop_index * 0x20, loop_index, offset, argOffset, arrLen]
-        add           // [offset + argOffset + loop_index * 0x20, loop_index, offset, argOffset, arrLen]
-        calldataload  // [element, loop_index, offset, argOffset, arrLen]
-
-        dup2          // [loop_index, element, loop_index, offset, argOffset, arrLen]
-        0x20 mul      // [loop_index * 0x20, element, loop_index, offset, argOffset, arrLen]
-        0x40 add      // [loop_index * 0x20 + 0x20, element, loop_index, offset, argOffset, arrLen]
-        mstore        // [loop_index, offset, argOffset, arrLen]
-
-        0x01 add      // [loop_index + 1, offset, argOffset, arrLen]
-
-        loop_body jump
-    finish:
-        // Set arr size
-        0x20 mstore   // [offset, argOffset, arrLen]
-
-        // Set arr element size (0x20)
-        0x20 0x00 mstore
-
-        // Clean stack & return mem ptr to array
-        pop pop pop   // []
-        0x00          // [0x00] - Beginning offset of the array in memory
+    // Return the memory pointer of the array
+    <mem_ptr>                   // [mem_ptr]
 }
 
 /// @notice Reads an immutable arg with type uint64

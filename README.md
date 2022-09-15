@@ -2,6 +2,9 @@
 
 Rewrite of [clones-with-immutable-args](https://github.com/wighawag/clones-with-immutable-args) in [Huff](https://github.com/huff-language).
 
+> **Note**
+> This implementation now lives in [Huffmate](https://github.com/pentagonxyz/huffmate). All future updates will happen there.
+
 ---
 
 Enables creating clone contracts with immutable arguments.
